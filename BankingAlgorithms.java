@@ -135,3 +135,71 @@ public class BankingAlgorithms {
         System.out.print("Top 3 risks: ");
         for(int i = 0; i < Math.min(3, insertArr.length); i++) {
             System.out.print(insertArr[i] + " ");
+        }
+        System.out.println("\n");
+    }
+
+    // --- Problem 3: Historical Trade Volume Analysis ---
+    static class Trade {
+        String id;
+        int volume;
+
+        public Trade(String id, int volume) {
+            this.id = id;
+            this.volume = volume;
+        }
+
+        @Override
+        public String toString() {
+            return id.replace("trade", "") + ":" + volume;
+        }
+    }
+
+    public static void problem3() {
+        System.out.println("--- Problem 3: Historical Trade Volume Analysis ---");
+        Trade[] trades = {
+                new Trade("trade3", 500),
+                new Trade("trade1", 100),
+                new Trade("trade2", 300)
+        };
+
+        // Merge Sort (asc)
+        Trade[] mergeArr = Arrays.copyOf(trades, trades.length);
+        mergeSort(mergeArr, 0, mergeArr.length - 1);
+        System.out.println("MergeSort: " + Arrays.toString(mergeArr));
+
+        // Quick Sort (desc)
+        Trade[] quickArr = Arrays.copyOf(trades, trades.length);
+        quickSortDesc(quickArr, 0, quickArr.length - 1);
+        System.out.println("QuickSort (desc): " + Arrays.toString(quickArr));
+
+        // Merge two sorted lists
+        Trade[] morning = {new Trade("m1", 200), new Trade("m2", 400)};
+        Trade[] afternoon = {new Trade("a1", 100), new Trade("a2", 300), new Trade("a3", 600)};
+        Trade[] merged = new Trade[morning.length + afternoon.length];
+        int m = 0, a = 0, k = 0, totalVol = 0;
+        while(m < morning.length && a < afternoon.length) {
+            if (morning[m].volume <= afternoon[a].volume) merged[k++] = morning[m++];
+            else merged[k++] = afternoon[a++];
+        }
+        while(m < morning.length) merged[k++] = morning[m++];
+        while(a < afternoon.length) merged[k++] = afternoon[a++];
+
+        for (Trade t : merged) totalVol += t.volume;
+        System.out.println("Merged total volume: " + totalVol + "\n");
+    }
+
+    private static void mergeSort(Trade[] arr, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(arr, left, mid);
+            mergeSort(arr, mid + 1, right);
+            merge(arr, left, mid, right);
+        }
+    }
+    private static void merge(Trade[] arr, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+        Trade[] L = new Trade[n1];
+        Trade[] R = new Trade[n2];
+        System.arraycopy(arr, left, L, 0, n1);
