@@ -81,3 +81,57 @@ public class BankingAlgorithms {
         int riskScore;
         double accountBalance;
 
+        public Client(String id, int riskScore, double accountBalance) {
+            this.id = id;
+            this.riskScore = riskScore;
+            this.accountBalance = accountBalance;
+        }
+
+        @Override
+        public String toString() {
+            return id + "(" + riskScore + ")";
+        }
+    }
+
+    public static void problem2() {
+        System.out.println("--- Problem 2: Client Risk Score Ranking ---");
+        Client[] clients = {
+                new Client("C", 80, 1000),
+                new Client("A", 20, 5000),
+                new Client("B", 50, 2000),
+                new Client("D", 80, 1500)
+        };
+
+        // Bubble Sort (asc)
+        Client[] bubbleArr = Arrays.copyOf(clients, clients.length);
+        int n = bubbleArr.length;
+        int swaps = 0;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (bubbleArr[j].riskScore > bubbleArr[j + 1].riskScore) {
+                    Client temp = bubbleArr[j];
+                    bubbleArr[j] = bubbleArr[j + 1];
+                    bubbleArr[j + 1] = temp;
+                    swaps++;
+                }
+            }
+        }
+        System.out.println("Bubble (asc): " + Arrays.toString(bubbleArr) + " // Swaps: " + swaps);
+
+        // Insertion Sort (desc riskScore + accountBalance desc)
+        Client[] insertArr = Arrays.copyOf(clients, clients.length);
+        for (int i = 1; i < insertArr.length; i++) {
+            Client key = insertArr[i];
+            int j = i - 1;
+            while (j >= 0 && (insertArr[j].riskScore < key.riskScore || 
+                 (insertArr[j].riskScore == key.riskScore && insertArr[j].accountBalance < key.accountBalance))) {
+                insertArr[j + 1] = insertArr[j];
+                j--;
+            }
+            insertArr[j + 1] = key;
+        }
+        System.out.println("Insertion (desc): " + Arrays.toString(insertArr));
+        
+        System.out.print("Top 3 risks: ");
+        for(int i = 0; i < Math.min(3, insertArr.length); i++) {
+            System.out.print(insertArr[i] + " ");
