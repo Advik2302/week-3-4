@@ -254,3 +254,44 @@ public class BankingAlgorithms {
             return name + ":" + (int)returnRate + "%";
         }
     }
+
+    public static void problem4() {
+        System.out.println("--- Problem 4: Portfolio Return Sorting ---");
+        Asset[] assets = {
+                new Asset("AAPL", 12, 0.5),
+                new Asset("TSLA", 8, 1.2),
+                new Asset("GOOG", 15, 0.6),
+                new Asset("BOND", 8, 0.1)
+        };
+
+        Asset[] mergeArr = Arrays.copyOf(assets, assets.length);
+        mergeSortAssets(mergeArr, 0, mergeArr.length - 1);
+        System.out.println("Merge: " + Arrays.toString(mergeArr));
+
+        Asset[] quickArr = Arrays.copyOf(assets, assets.length);
+        quickSortAssets(quickArr, 0, quickArr.length - 1);
+        System.out.println("Quick (desc): " + Arrays.toString(quickArr) + "\n");
+    }
+
+    private static void mergeSortAssets(Asset[] arr, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSortAssets(arr, left, mid);
+            mergeSortAssets(arr, mid + 1, right);
+            
+            Asset[] L = Arrays.copyOfRange(arr, left, mid + 1);
+            Asset[] R = Arrays.copyOfRange(arr, mid + 1, right + 1);
+            int i = 0, j = 0, k = left;
+            while (i < L.length && j < R.length) {
+                if (L[i].returnRate <= R[j].returnRate) arr[k++] = L[i++];
+                else arr[k++] = R[j++];
+            }
+            while (i < L.length) arr[k++] = L[i++];
+            while (j < R.length) arr[k++] = R[j++];
+        }
+    }
+
+    private static void quickSortAssets(Asset[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partitionAssets(arr, low, high);
+            quickSortAssets(arr, low, pi - 1);
