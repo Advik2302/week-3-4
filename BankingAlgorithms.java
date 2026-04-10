@@ -254,3 +254,165 @@ public class BankingAlgorithms {
             return name + ":" + (int)returnRate + "%";
         }
     }
+
+    public static void problem4() {
+        System.out.println("--- Problem 4: Portfolio Return Sorting ---");
+        Asset[] assets = {
+                new Asset("AAPL", 12, 0.5),
+                new Asset("TSLA", 8, 1.2),
+                new Asset("GOOG", 15, 0.6),
+                new Asset("BOND", 8, 0.1)
+        };
+
+        Asset[] mergeArr = Arrays.copyOf(assets, assets.length);
+        mergeSortAssets(mergeArr, 0, mergeArr.length - 1);
+        System.out.println("Merge: " + Arrays.toString(mergeArr));
+
+        Asset[] quickArr = Arrays.copyOf(assets, assets.length);
+        quickSortAssets(quickArr, 0, quickArr.length - 1);
+        System.out.println("Quick (desc): " + Arrays.toString(quickArr) + "\n");
+    }
+
+    private static void mergeSortAssets(Asset[] arr, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSortAssets(arr, left, mid);
+            mergeSortAssets(arr, mid + 1, right);
+            
+            Asset[] L = Arrays.copyOfRange(arr, left, mid + 1);
+            Asset[] R = Arrays.copyOfRange(arr, mid + 1, right + 1);
+            int i = 0, j = 0, k = left;
+            while (i < L.length && j < R.length) {
+                if (L[i].returnRate <= R[j].returnRate) arr[k++] = L[i++];
+                else arr[k++] = R[j++];
+            }
+            while (i < L.length) arr[k++] = L[i++];
+            while (j < R.length) arr[k++] = R[j++];
+        }
+    }
+
+    private static void quickSortAssets(Asset[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partitionAssets(arr, low, high);
+            quickSortAssets(arr, low, pi - 1);
+            quickSortAssets(arr, pi + 1, high);
+        }
+    }
+    private static int partitionAssets(Asset[] arr, int low, int high) {
+        Asset pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j < high; j++) {
+            if (arr[j].returnRate > pivot.returnRate || 
+               (arr[j].returnRate == pivot.returnRate && arr[j].volatility < pivot.volatility)) {
+                i++;
+                Asset temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        Asset temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        return i + 1;
+    }
+
+    // --- Problem 5: Account ID Lookup in Transaction Logs ---
+    public static void problem5() {
+        System.out.println("--- Problem 5: Account ID Lookup in Transaction Logs ---");
+        String[] logs = {"accB", "accA", "accB", "accC"};
+        
+        // Linear Search
+        int firstOcc = -1;
+        int comps = 0;
+        for (int i = 0; i < logs.length; i++) {
+            comps++;
+            if (logs[i].equals("accB")) {
+                firstOcc = i;
+                break;
+            }
+        }
+        System.out.println("Linear first accB: index " + firstOcc + " (" + comps + " comparisons)");
+
+        // Binary Search
+        String[] sortedLogs = {"accA", "accB", "accB", "accC"}; // Assume sorted
+        int low = 0, high = sortedLogs.length - 1;
+        int binComps = 0;
+        int foundIdx = -1;
+        while (low <= high) {
+            binComps++;
+            int mid = low + (high - low) / 2;
+            int cmp = sortedLogs[mid].compareTo("accB");
+            if (cmp == 0) {
+                foundIdx = mid;
+                break;
+            } else if (cmp < 0) low = mid + 1;
+            else high = mid - 1;
+        }
+
+        int count = 0;
+        if (foundIdx != -1) {
+            count = 1;
+            // count left
+            int left = foundIdx - 1;
+            while(left >= 0 && sortedLogs[left].equals("accB")) { count++; left--; binComps++; }
+            // count right
+            int right = foundIdx + 1;
+            while(right < sortedLogs.length && sortedLogs[right].equals("accB")) { count++; right++; binComps++; }
+        }
+        
+        System.out.println("Binary accB: index " + foundIdx + " (" + binComps + " comparisons total), count=" + count + "\n");
+    }
+
+    // --- Problem 6: Risk Threshold Binary Lookup ---
+    public static void problem6() {
+        System.out.println("--- Problem 6: Risk Threshold Binary Lookup ---");
+        int[] risks = {10, 25, 50, 100};
+        int target = 30;
+
+        // Linear
+        boolean found = false;
+        int linComps = 0;
+        for (int r : risks) {
+            linComps++;
+            if (r == target) {
+                found = true;
+                break;
+            }
+        }
+        System.out.println("Linear: threshold=" + target + (found ? " -> found" : " -> not found") + " (" + linComps + " comps)");
+
+        // Binary floor/ceiling
+        int low = 0, high = risks.length - 1;
+        int binComps = 0;
+        Integer floor = null, ceiling = null;
+
+        while(low <= high) {
+            binComps++;
+            int mid = low + (high - low) / 2;
+            if (risks[mid] == target) {
+                floor = risks[mid];
+                ceiling = risks[mid];
+                break;
+            } else if (risks[mid] < target) {
+                floor = risks[mid];
+                low = mid + 1;
+            } else {
+                ceiling = risks[mid];
+                high = mid - 1;
+            }
+        }
+        
+        System.out.println("Binary floor(" + target + "): " + (floor != null ? floor : "none") + 
+                           ", ceiling: " + (ceiling != null ? ceiling : "none") + " (" + binComps + " comps)");
+    }
+
+    public static void main(String[] args) {
+        problem1();
+        problem2();
+        problem3();
+        problem4();
+        problem5();
+        problem6();
+    }
+}
+
